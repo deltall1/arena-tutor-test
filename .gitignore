@@ -125,3 +125,8 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+gameData/Raw_cards.json
+gameData/Raw_enums.json
+gameData/Raw_loc.json
+gameData/cards.json
