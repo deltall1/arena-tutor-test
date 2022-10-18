@@ -111,6 +111,7 @@ const allSets = [
   "WWK",
   "XLN",
   "Y22",
+  "Y23",
   "ZEN",
   "ZNR",
 ];

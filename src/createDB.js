@@ -1,7 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 
-const { convertSqlite } = require("./convertSqlite.js");
+const { convertSqlite } = require("../../arena-tutor-test/src/convertSqlite.js");
 
 function parseCost(cost) {
   return cost.split("o").slice(1, cost.length);
@@ -83,21 +83,21 @@ async function createDB() {
         pretty_name: locs[item.TitleId],
         name: cleanMtgaName(locs[item.TitleId]),
         set: item.ExpansionCode || undefined,
-        digitalSet: item.DigitalReleaseSet,
+        digitalSet: item.DigitalReleaseSet || undefined,
         cmc: item.cmc,
         linkedFaceType: item.LinkedFaceType || undefined,
         linkedFaces: item.LinkedFaceGrpIds
           ? parseStringArray(item.LinkedFaceGrpIds)
           : undefined,
-        isSecondaryCard: !!item.isPrimaryCard,
+        isSecondaryCard: !!item.IsToken || !!item.isPrimaryCard,
         collectorNumber: item.CollectorNumber || undefined,
         collectorMax: item.CollectorMax || undefined,
-        type: parseStringArray(item.Types).map(
-          (num) => locs[dataTypes["CardType"][num]]
-        ),
-        subType: parseStringArray(item.Subtypes).map(
-          (num) => locs[dataTypes["SubType"][num]]
-        ),
+        type: item.Types
+          ? parseStringArray(item.Types).map((num) => locs[dataTypes["CardType"][num]])
+          : "",
+        subType: item.Subtypes
+          ? parseStringArray(item.Subtypes).map((num) => locs[dataTypes["SubType"][num]])
+          : "",
         colors: getColorArrayFromColors(
           item.ColorIdentity ? parseStringArray(item.ColorIdentity) : []
         ),
@@ -121,11 +121,11 @@ async function createDB() {
     // Process cards data
     let cards = JSON.parse(fs.readFileSync(cardsFile, "utf8")).reduce(
       (obj, item) => {
-        if (item && item.ExpansionCode !== "ArenaSUP") {
+        if (item && locs[item.TitleId] && item.ExpansionCode !== "ArenaSUP") {
           obj[item.GrpId] = converCardObject(item);
         }
         return obj;
-      }
+      }, {}
     );
 
     console.log("Writing cards to new file..");
